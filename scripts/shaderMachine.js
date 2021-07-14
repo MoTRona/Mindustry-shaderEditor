@@ -3,7 +3,7 @@ if(!Vars.headless){
 const GL = this.global;
 GL.shader = null;
 
-var DefaultApplies = "this.setUniformf(\"u_time\", Time.time / Scl.scl(3))\nthis.setUniformf(\"u_color\", Tmp.c1.set(Color.white).lerp(Color.red, Mathf.sin(Time.time*0.2)*0.5+0.5))\n";
+var DefaultApplies = "this.setUniformf(\"u_time\", Time.time / Scl.scl(3))\nthis.setUniformf(\"u_color\", Tmp.c1.set(Color.white).shiftHue(Time.time*20.0))\n";
 var DefaultVertex = "uniform mat4 u_projTrans;\n"+
    "attribute vec4 a_position;\n"+
    "attribute vec2 a_texCoord0;\n"+
@@ -54,29 +54,12 @@ SM.buildType = () => {
 			return this;
 	   }, 
 		
-       createShader(appliesString, vert, frag) {
+       createShader(a, vert, frag) {
 		    importPackage(Packages.arc.graphics.gl); 
 		    try{
 		        GL.shader = new JavaAdapter(Shader, {
 				    apply(){
-	                	var applies = [];
-	                    var apply = "";
-	                    
-			            for(var i = 0; i < appliesString.length; i++) {
-			                var ch = appliesString.charAt(i);
-			           
-			                apply += ch
-			                if(ch == "\n") {
-			                	applies.push(apply);
-			                    apply = ""
-			                } 
-			            }; 
-			
-					    for(var i = 0; i < applies.length; i++){
-						    let a = applies[i];
-						 
-					        eval(a);
-				        } 
+				        eval(a);
 			        }
 			    }, vert, frag);
 			} catch(e){ this.setError(e) };
@@ -102,98 +85,93 @@ SM.buildType = () => {
 		    var dialog = new BaseDialog("@dialog.sm-title.name");
 	        var cont = dialog.cont;
 			
-            var applies = "";
-            var vertex = "";
-            var fragment = "";
-            
-            for(var i = 0; i < this.getApplies().length; i++) {
-                 var string = this.getApplies().charAt(i);
-                 applies += string;
-            };
-
-            for(var i = 0; i < this.getVert().length; i++) {
-                 var string = this.getVert().charAt(i);
-                 vertex += string;
-            };
-
-            for(var i = 0; i < this.getFrag().length; i++) {
-                 var string = this.getFrag().charAt(i);
-                 fragment += string
-            };
- 
-            this.text(cont, "@text.shader-applies"); 
-  
-            var textApplies;
-			cont.pane(
-                cons(p => {
-					textApplies = p.add(new TextArea(applies.toString().replace("\n", "\r"))).size(550, 120).get();
-					textApplies.setMaxLength(2000);
-				})
-            ).width(650).height(170).growY().row();
- 
-            this.text(cont, "@text.shader-vertex");
- 
-            var textVertex;
-			cont.pane(
-                cons(p => {
-	                textVertex = p.add(new TextArea(vertex.toString().replace("\n", "\r"))).size(630, 480).get();
-	                textVertex.setMaxLength(10000);
-				})
-            ).width(650).height(300).growY().row();
- 
-            this.text(cont, "@text.shader-fragment");
- 
-            var textFragment;
-			cont.pane(
-                cons(p => {
-	                textFragment = p.add(new TextArea(fragment.toString().replace("\n", "\r"))).size(630, 480).get();
-	                textFragment.setMaxLength(10000);
-				})
-            ).width(650).height(300).growY().row();
-
-			/*cont.table(
-	            cons(
-                    t => {     
-						t.button("@button.copy-shader", 
-		                    () => {
-			                    var appls = "" ;
-			                    for(var i = 0; i < this.getApplies().size; i++) {
-				                    let 
-				                    appls += "               ";
-			                    };
 			
-			                    Core.app.setClipboardText(""+
-									"if(!Vars.headless){\n"+
-										"importPackage(Packages.arc.graphics.gl);\n"+
-										"newShader = new JavaAdapter(Shader, {\n"+
-										"apply(){\n"+
-
-    
-							} 
-	                    ).growX().height(54).pad(4).row();
-					}
-                )
-            ).width(300);**/
-	
-	        textApplies.typed(
-                cons(c => {
-		            this.setApplies(textApplies.getText());
-                })
-            );
-	
-	        textFragment.typed(
-                cons(c => {
-                	this.setFrag(textFragment.getText())
-                })
-            );
+			if(!Vars.mobile){
+			    table.button(Icon.pencil, () => {
+				    dialog.show();
+	            });
             
-	        textVertex.typed(
-                cons(c => {
-                	this.setVert(textVertex.getText())
-                })
-            );
+	            var applies = "";
+	            var vertex = "";
+	            var fragment = "";
+	            
+	            for(var i = 0; i < this.getApplies().length; i++) {
+	                 var string = this.getApplies().charAt(i);
+	                 applies += string;
+	            };
+	
+	            for(var i = 0; i < this.getVert().length; i++) {
+	                 var string = this.getVert().charAt(i);
+	                 vertex += string;
+	            };
+	
+	            for(var i = 0; i < this.getFrag().length; i++) {
+	                 var string = this.getFrag().charAt(i);
+	                 fragment += string
+	            };
+	 
+	            this.text(cont, "@text.shader-applies"); 
+	  
+	            var textApplies;
+				cont.pane(
+	                cons(p => {
+						textApplies = p.add(new TextArea(applies.toString().replace("\n", "\r"))).size(550, 120).get();
+						textApplies.setMaxLength(2000);
+					})
+	            ).width(650).height(170).growY().row();
+	 
+	            this.text(cont, "@text.shader-vertex");
+	 
+	            var textVertex;
+				cont.pane(
+	                cons(p => {
+		                textVertex = p.add(new TextArea(vertex.toString().replace("\n", "\r"))).size(630, 480).get();
+		                textVertex.setMaxLength(10000);
+					})
+	            ).width(650).height(300).growY().row();
+	 
+	            this.text(cont, "@text.shader-fragment");
+	 
+	            var textFragment;
+				cont.pane(
+	                cons(p => {
+		                textFragment = p.add(new TextArea(fragment.toString().replace("\n", "\r"))).size(630, 480).get();
+		                textFragment.setMaxLength(10000);
+					})
+	            ).width(650).height(300).growY().row();
+		
+		        textApplies.typed(
+	                cons(c => {
+			            this.setApplies(textApplies.getText());
+	                })
+	            );
+		
+		        textFragment.typed(
+	                cons(c => {
+	                	this.setFrag(textFragment.getText())
+	                })
+	            );
+	            
+		        textVertex.typed(
+	                cons(c => {
+	                	this.setVert(textVertex.getText())
+	                })
+	            );
+            };
              
-             
+	
+			
+	        table.button(Icon.copy, () => { 
+                Core.app.setClipboardText(""+
+					"if(!Vars.headless){\n"+
+						"importPackage(Packages.arc.graphics.gl);\n"+
+						"newShader = new JavaAdapter(Shader, {\n"+
+							"apply(){\n"+this.getApplies()+"\n"+
+                            "}, "+this.getVert()+", "+this.getFrag()+
+                        "})"+
+					"}" 
+                )
+	        }).center();
              
 	        if(Vars.mobile) {
                 cont.row().marginTop(40);
@@ -233,9 +211,6 @@ SM.buildType = () => {
 	        }).center();
 		
 	        dialog.addCloseButton();
-		    table.button(Icon.pencil, () => {
-			    dialog.show();
-            });
 		}, 
 	
 	    text(cont, text) {
