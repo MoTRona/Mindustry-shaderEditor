@@ -1,12 +1,9 @@
 if(!Vars.headless){
 
-const F = require("func");
-const C = this.global.COLORS;
-
 const GL = this.global;
 GL.shader = null;
 
-var DefaultApplies = "this.setUniformf(\"u_time\", Time.time / Scl.scl(3))\nthis.setUniformf(\"u_color\", Tmp.c1.set(C.contritumLight).lerp(C.contritum, Mathf.sin(Time.time*0.2)*0.5+0.5))\n";
+var DefaultApplies = "this.setUniformf(\"u_time\", Time.time / Scl.scl(3))\nthis.setUniformf(\"u_color\", Tmp.c1.set(Color.white).lerp(Color.red, Mathf.sin(Time.time*0.2)*0.5+0.5))\n";
 var DefaultVertex = "uniform mat4 u_projTrans;\n"+
    "attribute vec4 a_position;\n"+
    "attribute vec2 a_texCoord0;\n"+
